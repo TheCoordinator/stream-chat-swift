@@ -92,7 +92,13 @@ public class ChatMessageController: DataController, DelegateCallable, DataStoreP
     
     /// The observer used to listen to message updates
     private lazy var messageObserver = createMessageObserver()
-        .onChange { [unowned self] change in
+        .onChange { [weak self] change in
+
+            guard let self = self else {
+                log.warning("Callback called while self is nil")
+                return nil
+            }
+
             self.delegateCallback {
                 $0.messageController(self, didChangeMessage: change)
             }
@@ -446,7 +452,13 @@ private extension ChatMessageController {
     }
     
     func setRepliesObserver() {
-        _repliesObserver.computeValue = { [unowned self] in
+        _repliesObserver.computeValue = { [weak self] in
+
+            guard let self = self else {
+                log.warning("Callback called while self is nil")
+                return nil
+            }
+
             let sortAscending = self.listOrdering == .topToBottom ? false : true
             let deletedMessageVisibility = self.client.databaseContainer.viewContext
                 .deletedMessagesVisibility ?? .visibleForCurrentUser

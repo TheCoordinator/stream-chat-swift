@@ -518,14 +518,26 @@ private class TestEnvironment {
     @Atomic var watcherListObserverSynchronizeError: Error?
 
     lazy var environment: ChatChannelWatcherListController.Environment = .init(
-        channelUpdaterBuilder: { [unowned self] in
+        channelUpdaterBuilder: { [weak self] in
+
+            guard let self = self else {
+                log.warning("Callback called while self is nil")
+                return nil
+            }
+
             self.watcherListUpdater = .init(
                 database: $0,
                 apiClient: $1
             )
             return self.watcherListUpdater!
         },
-        watcherListObserverBuilder: { [unowned self] in
+        watcherListObserverBuilder: { [weak self] in
+
+            guard let self = self else {
+                log.warning("Callback called while self is nil")
+                return nil
+            }
+
             self.watcherListObserver = .init(
                 context: $0,
                 fetchRequest: $1,

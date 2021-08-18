@@ -586,14 +586,26 @@ private class TestEnvironment {
     @Atomic var userObserverSynchronizeError: Error?
 
     lazy var environment: ChatUserController.Environment = .init(
-        userUpdaterBuilder: { [unowned self] in
+        userUpdaterBuilder: { [weak self] in
+
+            guard let self = self else {
+                log.warning("Callback called while self is nil")
+                return nil
+            }
+
             self.userUpdater = .init(
                 database: $0,
                 apiClient: $1
             )
             return self.userUpdater!
         },
-        userObserverBuilder: { [unowned self] in
+        userObserverBuilder: { [weak self] in
+
+            guard let self = self else {
+                log.warning("Callback called while self is nil")
+                return nil
+            }
+
             self.userObserver = .init(
                 context: $0,
                 fetchRequest: $1,
