@@ -26,8 +26,9 @@ extension UIImageView {
         let preprocessors: [ImageProcessing] = resizeAutomatically && bounds.size != .zero
             ? [ImageProcessors.Resize(size: bounds.size, contentMode: .aspectFill, crop: true)]
             : []
- 
+
         let request = ImageRequest(url: url, processors: preprocessors)
+
         let options = ImageLoadingOptions(placeholder: placeholder)
 
         currentImageLoadingTask = Nuke.loadImage(with: request, options: options, into: self)
